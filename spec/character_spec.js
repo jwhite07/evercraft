@@ -68,12 +68,12 @@ describe("Character", function() {
 		  expect(hero.strength()).toBe(20);
 		  expect(hero.strength(1)).toBe(1);
 	  })
-	  when ("ability is dexterity", function () {
-	  	it("modifies armor", function () {
-			hero.dexterity(12);
-			expect(hero.armor).toEqual(11);
-	  	});
-	  });
+	  // when ("ability is dexterity", function () {
+// 	  	it("modifies armor", function () {
+// 			hero.dexterity(12);
+// 			expect(hero.armor).toEqual(11);
+// 	  	});
+// 	  });
 	  when ("ability is constitution", function () {
 	  	it("modifies hit points", function () {
 			hero.constitution(12);
@@ -156,7 +156,22 @@ describe("Character", function() {
 		hero.strength(5);
 		expect(hero.attack(villain, villain.armor+4)).toBe(true);
 		expect(villain.hitpoints).toEqual(0);
+		
+		
 	});
+	it("should miss a dexterity 20 villian with a roll of 10", function(){
+		villain.dexterity(20);
+		expect(hero.attack(villain, 10)).toBe(false);
+	})
+	it("should hit a dexterity 12 villian with a roll of 11", function(){
+		villain.dexterity(12);
+		expect(hero.attack(villain, 11)).toBe(true);
+	})
+	it("should hit a dexterity 5 villian with a roll of 7", function(){
+		villain.dexterity(5);
+		expect(hero.attack(villain, 7)).toBe(true);
+	})
+	
 
 	it("misses opponent when roll is less than their armor", function(){
 		expect(hero.attack(villain, villain.armor-1)).toBe(false);

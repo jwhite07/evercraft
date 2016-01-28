@@ -1,8 +1,13 @@
 
-function Character(name){
+function Character(name, charClass){
+	this.class = charClass || new Class("Default");
 	this.name = name;
-	this.armor = 10;
-	this.hitpoints = 5;
+	this.armor = 10
+	
+	
+	
+	this.hitpoints = this.class.hitPointsPerLevel;
+	this.attackRollBonus = 0;
 	
 	var abilities = {
 		"strength": 10,
@@ -23,12 +28,18 @@ function Character(name){
 		}
 	}
 	this.attack = function (target, roll) {
-		var modifier = this.modifier("strength") + Math.floor(this.level / 2);
-		if (roll + modifier >= target.armor) {			
+		var modifier = this.modifier("strength") + this.attackRollBonus;
+		var armorMod = target.modifier("dexterity");
+		if (this.class.ignoreOpponentDex){
+			if (armorMod >= 0){
+				armorMod = 0;
+			}
+		}
+		if (roll + modifier >= target.armor + armorMod) {			
 			damage = 1;
 			if (roll == 20){
-				damage *= 2;
-				modifier *=2;				
+				damage *= this.class.critHitMultiplier;
+				modifier *= this.class.critHitMultiplier;				
 			}
 			if ((modified_damage = damage + modifier) < 1) {
 				modified_damage = 1;
@@ -44,8 +55,14 @@ function Character(name){
 	this.addXp = function (add){
 		if (this.xp - this.level * 1000 + add >= 0){
 			this.level += 1;
-			this.hitpoints += 5 + this.modifier("constitution");
+			this.hitpoints += this.class.hitPointsPerLevel + this.modifier("constitution");
+			for (i=0; i<this.class.rollBonusLevelDivisor.length; i++) {
+				if (this.level % this.class.rollBonusLevelDivisor[i] == 0){
+					this.attackRollBonus += this.class.rollBonusOnLevelAmount;
+				}
+			}
 		}
+		
 		this.xp += add;
 	}
 	this.dead = function () {
@@ -78,10 +95,8 @@ function Character(name){
 		if (value === undefined){
 			return abilities["dexterity"];
 		}else{
-			if(ret = setAbility(value, "dexterity")){
-				this.armor += this.modifier("dexterity");
-			};
-			return ret;
+			return setAbility(value, "dexterity")
+				
 		}
 	}
 	this.constitution = function (value){
@@ -118,5 +133,7 @@ function Character(name){
 			return setAbility(value, "charisma");
 		}
 	}
+	
+	
 }
 
